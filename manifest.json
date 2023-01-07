@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Zoom Video Extension",
+  "description": "Zoom on youtube and meet videos",
+  "version": "1.0",
+  "action": {
+    "default_popup": "./popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["https://meet.google.com/*", "https://*.zoom.us/*", "https://youtube.com/*", "https://www.youtube.com/*"]
+    }
+  ]
+}
