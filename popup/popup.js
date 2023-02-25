@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
   const startButton = document.getElementById('start-button');
-  startButton.addEventListener('click', ()=> popup());
+  startButton.addEventListener('click', ()=> {
+    popup()
+    startButton.style.display = 'none'
+  });
 });
 
 const popup = () => {

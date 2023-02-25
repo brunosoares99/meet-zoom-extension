@@ -8,7 +8,6 @@ chrome.runtime.onMessage.addListener(
 const listenerChanges = () => {
   let observer = new MutationObserver(mutations => {
     for(let mutation of mutations) {
-         console.log(mutation.addedNodes, mutation.removedNodes)
          mutation.addedNodes.forEach(node => {
             if(node.className === 'dkjMxf') {
               getVideoAndBox()
@@ -24,12 +23,10 @@ const listenerChanges = () => {
  observer.observe(document, { childList: true, subtree: true });
 }
 
-let boxexs = []
+let boxes = []
 let scale = 1
 
 let getVideoAndBox = () => {
-  boxes = []
-  scale = 1
   boxes = document.querySelectorAll('.dkjMxf')
   handleError()
 }
@@ -46,28 +43,46 @@ const handleError = () => {
 
 const onMouseWheelMove = () => {
   boxes.forEach(box => {
-    box.addEventListener("wheel", (e) => {
+    box.addEventListener("wheel", (event) => {
+      event.preventDefault()
       let video
       const videos = box.getElementsByTagName('video') || []
-      Array.from(videos).forEach(el => {
-        if(el.style.display !== 'none') video = el
+      Array.from(videos).forEach(element => {
+        if(element.style.display !== 'none') video = element
       })
-      const x = e.clientX - video.offsetLeft - video.getBoundingClientRect().x
-      const y = e.clientY - video.offsetTop - video.getBoundingClientRect().y
-      if(e.deltaY < 0) {
-        video.style.transformOrigin = `${x}px ${y}px`
-        if(scale + 0.1 > 1.8) {
-          scale = 1.8
-          video.style.transform = `scale(${scale})`
-          return
-        }
-        video.style.transform = `scale(${scale += 0.1})`
-      } else {
-        scale = 1
-        video.style.transformOrigin = 'center center'
-        video.style.transform = 'scale(1)'
+      if(scale === 1) {
+        box.addEventListener('mousemove', (eventBox) => {
+          handleOrigin(eventBox, video)
+        })
       }
+      handleLimits(event, video)
     })
   })
 }
-  
+
+const handleLimits = (event, video) => {
+  const { clientX, clientY, deltaY } = event
+  const x = clientX - video.offsetLeft - video.getBoundingClientRect().x
+  const y = clientY - video.offsetTop - video.getBoundingClientRect().y
+  if(deltaY < 0) {
+    video.style.transformOrigin = `${x / scale}px ${y / scale}px`
+    if(scale + 0.1 > 2.5) {
+      scale = 2.5
+      video.style.transform = `scale(${scale})`
+      return
+    }
+    video.style.transform = `scale(${scale += 0.1})`
+  } else {
+    scale = 1
+    video.style.transformOrigin = 'center center'
+    video.style.transform = 'scale(1)'
+  }
+}
+
+
+const handleOrigin = (event, video) => {
+  const { clientX, clientY } = event
+  const x = clientX - video.offsetLeft - video.getBoundingClientRect().x
+  const y = clientY - video.offsetTop - video.getBoundingClientRect().y
+  video.style.transformOrigin = `${x / scale}px ${y / scale}px`
+}
